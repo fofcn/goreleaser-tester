@@ -6,23 +6,51 @@ name: Go
 on:
   push:
     branches: [ "main" ]
+    tags: [ "v*" ]  # 新增：仅推送 v* 格式的 Tag 时触发 Goreleaser（如 v1.0.0、v2.1.3）
   pull_request:
     branches: [ "main" ]
 
 jobs:
-
-  build:
+  # 原有构建+测试任务（无修改）
+  build-test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 新增：Goreleaser 生成 Changelog 需完整提交记录（禁用后仍建议保留，不影响）
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.20'
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
 
-    - name: Build
-      run: go build -v ./...
+      - name: Build
+        run: go build -v ./...
 
-    - name: Test
-      run: go test -v ./...
+      - name: Test
+        run: go test -v ./...
+
+  # 新增：Goreleaser 构建+发布任务（仅 Tag 触发时执行）
+  release:
+    needs: build-test  # 依赖 build-test 任务成功后才执行
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')  # 仅 Tag 推送时触发
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 必要：Goreleaser 需完整提交记录（用于构建产物版本关联）
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+
+      # 新增：Goreleaser 构建+发布
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          version: latest  # 使用最新版 Goreleaser
+          args: release --clean  # --clean：清理之前的构建产物，避免冲突
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 自动生成的 Token，用于发布到 GitHub Release
+          CREATE_CHANGELOG: true  # 对应 .goreleaser.yml 中的禁用 Changelog 配置
