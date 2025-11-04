@@ -18,3 +18,6 @@ test github action
       • calculating checksums
   • publishing
     • scm releases
+
+
+    goreleaser/goreleaser-action@v1
