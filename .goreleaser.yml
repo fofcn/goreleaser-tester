@@ -20,12 +20,14 @@ builds:
       - -X main.commit={{.Commit}}
 
 archives:
-  - format: tar.gz
+  - id: tarball
+    format: tar.gz
     files:
       - LICENSE*
       - README*
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
-  - format: zip
+  - id: zipball
+    format: zip
     files:
       - LICENSE*
       - README*
@@ -33,7 +35,7 @@ archives:
 
 release:
   github:
-    owner: fofcn 
+    owner: fofcn
   draft: false
   prerelease: false
   # 移除不支持的 allow_update 和 auto 字段
