@@ -1,43 +1,29 @@
-# .goreleaser.yml 核心配置（Go 项目专用）
 version: 2
 
-# 构建配置（多平台二进制产物）
 builds:
-  - name: your-project-name  # 替换为你的项目名称（最终二进制文件名称）
+  - name: your-project-name
     env:
-      - CGO_ENABLED=0  # 禁用 CGO，生成静态链接二进制（跨平台兼容）
-    goos:  # 要构建的操作系统
-      - linux
-      - windows
-      - darwin
-    goarch:  # 要构建的架构
-      - amd64
-      - arm64
-    goarm:  # arm 架构版本（仅 arm 架构生效）
-      - 7
-    flags:  # Go 构建参数（可选，根据需求调整）
-      - -trimpath  # 移除编译路径中的绝对路径，减小二进制体积
-    ldflags:  # 链接参数（注入版本信息，可选）
-      - -s -w  # 移除符号表和调试信息，减小二进制体积
-      - -X main.version={{.Version}}  # 注入版本号（需项目 main 包有 version 变量）
-      - -X main.commit={{.Commit}}    # 注入 Commit Hash（需项目 main 包有 commit 变量）
+      - CGO_ENABLED=0
+    goos: [ linux, windows, darwin ]
+    goarch: [ amd64, arm64 ]
+    goarm: [ 7 ]
+    flags: [ -trimpath ]
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
 
-# 归档配置（将二进制产物打包为 zip/tar.gz）
 archives:
-  - format: tar.gz  # Linux/macOS 用 tar.gz
-    files:  # 归档包含的文件（默认仅二进制，可添加 README、LICENSE 等）
-      - LICENSE*
-      - README*
+  - format: tar.gz
+    files: [ LICENSE*, README* ]
     name_template: >-
       {{ .ProjectName }}_
       {{ .Version }}_
       {{ .Os }}_
       {{ .Arch }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
-  - format: zip  # Windows 用 zip（自动关联 .exe 后缀）
-    files:
-      - LICENSE*
-      - README*
+  - format: zip
+    files: [ LICENSE*, README* ]
     name_template: >-
       {{ .ProjectName }}_
       {{ .Version }}_
@@ -45,31 +31,26 @@ archives:
       {{ .Arch }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
 
-# 发布配置（GitHub Release）
 release:
   github:
-    owner: your-github-username  # 替换为你的 GitHub 用户名（如：octocat）
-    repo: your-repo-name         # 替换为你的仓库名称（如：hello-world）
-  allow-update: true  # 允许更新现有 Release（仅上传资产，不修改描述）
-  draft: false        # 发布正式 Release（非草稿）
-  prerelease: false   # 非预发布版本
+    owner: your-github-username
+    repo: your-repo-name
+  allow-update: true
+  draft: false
+  prerelease: false
+  auto: true
 
-# Changelog 配置（关键：禁用自动生成，避免覆盖描述）
-# changelog:
-#   disable: "{{ .Env.CREATE_CHANGELOG }}"  # 由环境变量控制，默认禁用
-#   sort: asc  # 若启用，按提交时间升序排列（禁用后无效）
-#   filters:
-#     exclude:
-#       - "^docs:"  # 排除文档类提交（禁用后无效）
-#       - "^test:"  # 排除测试类提交（禁用后无效）
+changelog:
+  disable: "{{ .Env.CREATE_CHANGELOG }}"
+  sort: asc
+  filters:
+    exclude: [ "^docs:", "^test:" ]
 
-# 校验配置（可选，确保产物正确）
 checksum:
-  name_template: "checksums.txt"  # 校验文件名称
-  algorithm: sha256  # 校验算法（sha256/sha512）
+  name_template: "checksums.txt"
+  algorithm: sha256
 
-# 元数据配置（可选，优化 Release 展示）
 metadata:
-  homepage: "https://github.com/your-github-username/your-repo-name"  # 替换为你的仓库地址
-  description: "Your project description"  # 替换为你的项目描述
-  license: "MIT"  # 替换为你的项目许可证（如：MIT、Apache-2.0）
+  homepage: "https://github.com/your-github-username/your-repo-name"
+  description: "Your project description"
+  license: "MIT"

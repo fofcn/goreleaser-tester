@@ -1,56 +1,37 @@
-version: 2
+# This workflow will build a golang project
+name: Go
 
-builds:
-  - name: your-project-name
-    env:
-      - CGO_ENABLED=0
-    goos: [ linux, windows, darwin ]
-    goarch: [ amd64, arm64 ]
-    goarm: [ 7 ]
-    flags: [ -trimpath ]
-    ldflags:
-      - -s -w
-      - -X main.version={{.Version}}
-      - -X main.commit={{.Commit}}
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ "main" ]
+  release:
+    types: [ published, edited ]
 
-archives:
-  - format: tar.gz
-    files: [ LICENSE*, README* ]
-    name_template: >-
-      {{ .ProjectName }}_
-      {{ .Version }}_
-      {{ .Os }}_
-      {{ .Arch }}
-      {{- if .Arm }}v{{ .Arm }}{{ end }}
-  - format: zip
-    files: [ LICENSE*, README* ]
-    name_template: >-
-      {{ .ProjectName }}_
-      {{ .Version }}_
-      {{ .Os }}_
-      {{ .Arch }}
-      {{- if .Arm }}v{{ .Arm }}{{ end }}
+jobs:
+  release:
+    needs: build-test
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+      (github.event_name == 'release' && github.event.action != 'deleted')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-release:
-  github:
-    owner: your-github-username
-    repo: your-repo-name
-  allow-update: true
-  draft: false
-  prerelease: false
-  auto: true
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
 
-# changelog:
-#   disable: "{{ .Env.CREATE_CHANGELOG }}"
-#   sort: asc
-#   filters:
-#     exclude: [ "^docs:", "^test:" ]
-
-checksum:
-  name_template: "checksums.txt"
-  algorithm: sha256
-
-metadata:
-  homepage: "https://github.com/your-github-username/your-repo-name"
-  description: "Your project description"
-  license: "MIT"
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          version: latest
+          args: release --clean --release-notes /dev/null
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CREATE_CHANGELOG: true
