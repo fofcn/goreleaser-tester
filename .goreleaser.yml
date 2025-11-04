@@ -1,8 +1,7 @@
-
 version: 1  
 
 builds:
-  - name: your-project-name
+  - name: goreleaser-tester
     env:
       - CGO_ENABLED=0
     goos:
@@ -35,26 +34,26 @@ archives:
 
 release:
   github:
-    owner: your-github-username
-    repo: your-repo-name
+    owner: fofcn
+    repo: oreleaser-tester  
   allow_update: true  
   draft: false
   prerelease: false
   auto: true
 
-changelog:
-  disable: "{{ .Env.CREATE_CHANGELOG }}"
-  sort: asc
-  filters:
-    exclude:
-      - "^docs:"
-      - "^test:"
+# changelog:
+#   disable: "{{ .Env.CREATE_CHANGELOG }}"  
+#   sort: asc
+#   filters:
+#     exclude:
+#       - "^docs:"
+#       - "^test:"
 
 checksum:
   name_template: "checksums.txt"
   algorithm: sha256
 
 metadata:
-  homepage: "https://github.com/your-github-username/your-repo-name"
-  description: "Your project description"
-  license: "MIT"
+  homepage: "https://github.com/your-github-username/your-repo-name"  
+  description: "Your project description"  
+  license: "MIT"  
