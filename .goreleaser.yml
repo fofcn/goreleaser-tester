@@ -1,8 +1,7 @@
-version: 1  
+version: 1
 
 builds:
-  - name: goreleaser-tester
-    env:
+  - env:  
       - CGO_ENABLED=0
     goos:
       - linux
@@ -34,15 +33,14 @@ archives:
 
 release:
   github:
-    owner: fofcn
-    repo: oreleaser-tester  
-  allow_update: true  
+    owner: fofcn 
   draft: false
   prerelease: false
-  auto: true
+  # 移除不支持的 allow_update 和 auto 字段
 
+# 按需启用（若需禁用 Changelog，取消注释并确保 CREATE_CHANGELOG 环境变量为 true）
 # changelog:
-#   disable: "{{ .Env.CREATE_CHANGELOG }}"  
+#   disable: "{{ .Env.CREATE_CHANGELOG }}"
 #   sort: asc
 #   filters:
 #     exclude:
@@ -53,7 +51,4 @@ checksum:
   name_template: "checksums.txt"
   algorithm: sha256
 
-metadata:
-  homepage: "https://github.com/your-github-username/your-repo-name"  
-  description: "Your project description"  
-  license: "MIT"  
+# 完全删除不支持的 metadata 节点
