@@ -1,5 +1,5 @@
 # This workflow will build a golang project
-name: Go
+name: Release
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   pull_request:
     branches: [ "main" ]
   release:
-    types: [ published, edited ]
+    types: [ created, published, edited ]
 
 jobs:
   release:
