@@ -10,6 +10,10 @@ on:
   release:
     types: [ created, published, edited ]
 
+permissions:
+  contents: write  
+  pull-requests: read  
+
 jobs:
   release:
     runs-on: ubuntu-latest
