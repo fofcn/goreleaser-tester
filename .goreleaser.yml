@@ -1,13 +1,21 @@
-version: 1
+
+version: 1  
 
 builds:
   - name: your-project-name
     env:
       - CGO_ENABLED=0
-    goos: [ linux, windows, darwin ]
-    goarch: [ amd64, arm64 ]
-    goarm: [ 7 ]
-    flags: [ -trimpath ]
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    goarm:
+      - 7
+    flags:
+      - -trimpath
     ldflags:
       - -s -w
       - -X main.version={{.Version}}
@@ -15,27 +23,21 @@ builds:
 
 archives:
   - format: tar.gz
-    files: [ LICENSE*, README* ]
-    name_template: >-
-      {{ .ProjectName }}_
-      {{ .Version }}_
-      {{ .Os }}_
-      {{ .Arch }}
-      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    files:
+      - LICENSE*
+      - README*
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
   - format: zip
-    files: [ LICENSE*, README* ]
-    name_template: >-
-      {{ .ProjectName }}_
-      {{ .Version }}_
-      {{ .Os }}_
-      {{ .Arch }}
-      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    files:
+      - LICENSE*
+      - README*
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
 
 release:
   github:
     owner: your-github-username
     repo: your-repo-name
-  allow-update: true
+  allow_update: true  
   draft: false
   prerelease: false
   auto: true
@@ -44,7 +46,9 @@ changelog:
   disable: "{{ .Env.CREATE_CHANGELOG }}"
   sort: asc
   filters:
-    exclude: [ "^docs:", "^test:" ]
+    exclude:
+      - "^docs:"
+      - "^test:"
 
 checksum:
   name_template: "checksums.txt"
