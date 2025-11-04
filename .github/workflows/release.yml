@@ -1,0 +1,45 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Go
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ "v*" ]  # 触发条件1：推送 v* 格式 Tag（自动创建 Release）
+  pull_request:
+    branches: [ "main" ]
+  release:
+    types: [ published, edited ]  # 触发条件2：手动新建/编辑 Release（仅上传资产）
+
+jobs:
+  # 新增：Goreleaser 构建+发布任务（支持 Tag 推送 + 手动 Release 触发）
+  release:
+    needs: build-test  # 依赖构建测试成功后执行
+    runs-on: ubuntu-latest
+    if: |
+      # 触发条件：Tag 推送 或 手动发布/编辑 Release
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+      (github.event_name == 'release' && github.event.action != 'deleted')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 必要：Goreleaser 关联版本和资产
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+
+      # 核心：Goreleaser 构建+上传资产（根据触发场景自动适配）
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          version: latest
+          # 关键参数：
+          # --clean：清理旧产物；
+          # --release-notes /dev/null：强制空描述（避免自动生成内容）
+          args: release --clean --release-notes /dev/null
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CREATE_CHANGELOG: true  # 禁用 Changelog 生成（对应 .goreleaser.yml）
