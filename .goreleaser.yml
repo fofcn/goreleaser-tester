@@ -3,6 +3,7 @@ version: 1
 builds:
   - env:  
       - CGO_ENABLED=0
+      - CREATE_CHANGELOG=true
     goos:
       - linux
       - windows
