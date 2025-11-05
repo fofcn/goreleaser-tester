@@ -42,8 +42,8 @@ release:
   # 移除不支持的 allow_update 和 auto 字段
 
 # 按需启用（若需禁用 Changelog，取消注释并确保 CREATE_CHANGELOG 环境变量为 true）
-# changelog:
-#   disable: "{{ .Env.CREATE_CHANGELOG }}"
+changelog:
+   disable: "{{ .Env.CREATE_CHANGELOG }}"
 #   sort: asc
 #   filters:
 #     exclude:
